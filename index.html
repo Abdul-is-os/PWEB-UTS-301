@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISP Conversational Bot</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for chat */
+        #chat-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chat-area::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #chat-area::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        #chat-area::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-2xl h-[90vh] bg-white shadow-2xl rounded-lg flex flex-col">
+        
+        <!-- Header -->
+        <header class="bg-blue-600 text-white p-4 rounded-t-lg shadow-md flex justify-between items-center">
+            <h1 class="text-2xl font-bold">ISP Support Bot 🤖</h1>
+        </header>
+
+        <!-- Chat Area -->
+        <main id="chat-area" class="flex-grow p-4 space-y-4 overflow-y-auto bg-gray-50">
+            <!-- Bot Welcome Message -->
+            <div class="flex justify-start">
+                <div class="max-w-xs lg:max-w-md bg-gray-200 text-gray-800 p-3 rounded-lg shadow">
+                    <p>Hello! I'm the ISP Support Bot. I'm connecting to the knowledge base...</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Input Area -->
+        <footer class="p-4 bg-white border-t rounded-b-lg">
+            <div class="flex space-x-2">
+                <input type="text" id="user-input" class="flex-grow px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type 'hello' to begin..." disabled>
+                <button id="send-btn" class="bg-blue-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" disabled>
+                    Send
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        // ⬇️ 1. PASTE YOUR GOOGLE API KEY HERE
+        const apiKey = "AIzaSyBoToGTz7UGsGtyas6w6Ix_SsaSGQTp1Io"; 
+        
+        // ⬇️ 2. PASTE YOUR GOOGLE SHEET ID HERE
+        const sheetId = "1Mspmx96rJAXAqInNjgdpsiXZ7c-Ey69gmQMmnv1FYCY"; 
+        
+        // ⬇️ 3. (Optional) SET YOUR SHEET NAME AND RANGE HERE
+        //    (Note: We now use 5 columns, A to E)
+        const sheetRange = "Sheet1!A:E";
+        // ---------------------
+
+        // DOM Elements
+        const chatArea = document.getElementById('chat-area');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // App State
+        let knowledgeBase = new Map();
+        let botLoaded = false;
+        let currentStateID = "start"; // The bot starts at the "start" state
+        const START_STATE_ID = "start"; // The required ID for the first state
+
+        // --- Event Listeners ---
+        window.addEventListener('load', loadKnowledgeBase);
+        sendBtn.addEventListener('click', handleUserInput);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleUserInput();
+            }
+        });
+
+        // --- Core Functions ---
+
+        async function loadKnowledgeBase() {
+            if (apiKey === "YOUR_GOOGLE_API_KEY_HERE" || sheetId === "YOUR_GOOGLE_SHEET_ID_HERE") {
+                addBotMessage("<strong>Configuration Error:</strong> The developer needs to set the `apiKey` and `sheetId` variables inside the `index.html` file before the bot can work.");
+                return;
+            }
+
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetRange}?key=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Google Sheets API Error: ${errorData.error.message}`);
+                }
+                
+                const data = await response.json();
+                const values = data.values;
+
+                if (!values || values.length <= 1) { // <= 1 for header
+                    throw new Error("No data found in the sheet. Ensure the sheet has data and the range is correct (e.g., Sheet1!A:E).");
+                }
+
+                // Remove header row
+                const headers = values[0];
+                const rows = values.slice(1);
+
+                // Build the knowledge base from the 5-column structure
+                knowledgeBase.clear();
+                rows.forEach((row, index) => {
+                    const id = row[0] ? row[0].trim() : '';
+                    const response = row[1] ? row[1].trim() : '';
+                    const optionsStr = row[2] ? row[2].toLowerCase() : '';
+                    const nextStatesStr = row[3] ? row[3] : '';
+                    const isEnd = (row[4] || "FALSE").toUpperCase() === "TRUE";
+
+                    if (!id || !response) {
+                        console.warn(`Skipping row ${index + 2}: Missing ID or Response.`);
+                        return;
+                    }
+
+                    const options = optionsStr.split(',').map(k => k.trim());
+                    const nextStates = nextStatesStr.split(',').map(id => id.trim());
+
+                    if (options.length !== nextStates.length) {
+                        console.warn(`Skipping row ${index + 2} (ID: ${id}): Mismatch between Options (${options.length}) and Next_State_IDs (${nextStates.length}).`);
+                        return;
+                    }
+                    
+                    knowledgeBase.set(id, { response, options, nextStates, isEnd });
+                });
+
+                // Check if the required "start" state exists
+                if (!knowledgeBase.has(START_STATE_ID)) {
+                    throw new Error(`Knowledge base loaded, but the required "start" state (ID: ${START_STATE_ID}) is missing from Column A.`);
+                }
+
+                botLoaded = true;
+                currentStateID = START_STATE_ID; // Set initial state
+                
+                // Send the initial welcome message from the "start" state
+                const startState = knowledgeBase.get(START_STATE_ID);
+                addBotMessage(formatText(startState.response));
+                
+                // Enable chat
+                userInput.placeholder = "Type your response..."
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                userInput.focus();
+
+            } catch (error) {
+                console.error('Failed to load knowledge base:', error);
+                addBotMessage(`Error loading bot: ${error.message}. Please check your console, API Key, Sheet ID, and Share settings.`);
+            }
+        }
+
+        function handleUserInput() {
+            const userText = userInput.value.trim();
+            if (!userText || !botLoaded) return;
+
+            addUserMessage(userText);
+            userInput.value = '';
+
+            // Disable input while bot is "thinking"
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+
+            setTimeout(() => {
+                getBotResponse(userText);
+            }, 500); // Simulate thinking time
+        }
+
+        function getBotResponse(userText) {
+            const cleanInput = userText.toLowerCase().trim();
+            const currentState = knowledgeBase.get(currentStateID);
+            let foundMatch = false;
+
+            // Loop through the options for the current state
+            for (let i = 0; i < currentState.options.length; i++) {
+                const keyword = currentState.options[i];
+                if (keyword && cleanInput.includes(keyword)) { // Check for non-empty keyword
+                    
+                    const nextStateID = currentState.nextStates[i];
+                    
+                    // Check if the next state ID is valid
+                    if (!knowledgeBase.has(nextStateID)) {
+                        console.error(`Bot Error: State "${currentStateID}" tries to go to a non-existent state "${nextStateID}".`);
+                        addBotMessage("I'm sorry, I've run into an internal error. Please try again later.");
+                        foundMatch = true;
+                        break;
+                    }
+
+                    // --- We have a match! Move to the next state ---
+                    currentStateID = nextStateID; // Update the global state
+                    const newState = knowledgeBase.get(currentStateID);
+                    
+                    // Send the response for the new state
+                    addBotMessage(formatText(newState.response));
+
+                    // If this new state is an "End" state, reset the bot for the next conversation
+                    if (newState.isEnd) {
+                        currentStateID = START_STATE_ID;
+                    }
+
+                    foundMatch = true;
+                    break;
+                }
+            }
+
+            // If no keyword was matched in the user's input
+            if (!foundMatch) {
+                // Re-send the *current* state's response to re-prompt the user
+                const repromptMessage = "I'm sorry, I didn't understand. " + currentState.response;
+                addBotMessage(formatText(repromptMessage));
+            }
+            
+            // Re-enable input
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
+
+        // --- Helper Functions ---
+
+        /**
+         * Formats text from the sheet, converting **bold** to <span class="font-bold">bold</span>
+         * @param {string} text - The raw text from the Google Sheet
+         * @returns {string} - HTML formatted text
+         */
+        function formatText(text) {
+            // Convert **text** to <span class="font-bold">text</span>
+            return text.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold">$1</span>');
+        }
+
+        function addBotMessage(html) {
+            const botMessage = document.createElement('div');
+            botMessage.classList.add('flex', 'justify-start');
+            botMessage.innerHTML = `
+                <div class="max-w-xs lg:max-w-md bg-gray-200 text-gray-800 p-3 rounded-lg shadow">
+                    <p>${html}</p>
+                </div>
+            `;
+            chatArea.appendChild(botMessage);
+            scrollToBottom();
+        }
+
+        function addUserMessage(text) {
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('flex', 'justify-end');
+            userMessage.innerHTML = `
+                <div class="max-w-xs lg:max-w-md bg-blue-500 text-white p-3 rounded-lg shadow">
+                    <p>${text}</p>
+                </div>
+            `;
+            chatArea.appendChild(userMessage);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+    </script>
+</body>
+</html>
