@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "crud_news",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -1,0 +1,15 @@
+meta {
+  name: get_data
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost/CRUDAPI/flow/get_data.php
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
