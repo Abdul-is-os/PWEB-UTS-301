@@ -1,423 +1,446 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ISP Project Website</title>
-        <!-- Load Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
-        <style>
-            /* Custom scrollbar for chat */
-            #chat-area::-webkit-scrollbar { width: 6px; }
-            #chat-area::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-            #chat-area::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-            #chat-area::-webkit-scrollbar-thumb:hover { background: #555; }
-            
-            /* Hide pages by default */
-            .page-section { display: none; }
-            /* Show active page */
-            .active-page { display: block; animation: fadeIn 0.3s ease-in-out; }
-            
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        </style>
-    </head>
-    <body class="font-sans antialiased bg-gray-50 min-h-screen flex flex-col">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISP Project Website</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for chat */
+        #chat-area::-webkit-scrollbar { width: 6px; }
+        #chat-area::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        #chat-area::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        #chat-area::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Hide pages by default */
+        .page-section { display: none; }
+        /* Show active page */
+        .active-page { display: block; animation: fadeIn 0.3s ease-in-out; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-gray-50 min-h-screen flex flex-col">
 
-        <!-- Navigation Bar -->
-        <nav class="bg-blue-700 text-white shadow-lg sticky top-0 z-50">
-            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="text-2xl font-bold flex items-center gap-2 cursor-pointer" onclick="navigateTo('home')">
-                    📡 ISP Connect
-                </div>
-                <div class="hidden md:flex space-x-6">
-                    <button onclick="navigateTo('home')" class="hover:text-blue-200 transition">Home</button>
-                    <button onclick="navigateTo('login')" id="nav-login" class="hover:text-blue-200 transition">Login</button>
-                    <button onclick="navigateTo('register')" id="nav-register" class="hover:text-blue-200 transition">Register</button>
-                    <button onclick="logout()" id="nav-logout" class="hidden bg-red-500 px-3 py-1 rounded hover:bg-red-600 transition">Logout</button>
-                </div>
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="text-2xl font-bold flex items-center gap-2 cursor-pointer" onclick="navigateTo('home')">
+                📡 ISP Connect
             </div>
-        </nav>
-
-        <!-- MAIN CONTENT CONTAINER -->
-        <div class="flex-grow container mx-auto px-4 py-8">
-
-            <!-- 1. HALAMAN UTAMA (Home Page) -->
-            <section id="home" class="page-section active-page">
-                <div class="text-center mb-12">
-                    <h1 class="text-4xl font-bold text-gray-800 mb-4">Welcome to ISP Connect</h1>
-                    <p class="text-xl text-gray-600">Connecting you to the world with ultra-fast speed.</p>
-                </div>
-
-                <!-- Company Info Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Card 1 -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer" onclick="showDetail('internet')">
-                        <div class="h-40 bg-blue-500 flex items-center justify-center text-white text-5xl">🚀</div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Fiber Internet</h3>
-                            <p class="text-gray-600">Up to 1Gbps speeds for gaming and streaming.</p>
-                            <span class="text-blue-600 mt-4 inline-block font-semibold">View Details &rarr;</span>
-                        </div>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer" onclick="showDetail('tv')">
-                        <div class="h-40 bg-purple-500 flex items-center justify-center text-white text-5xl">📺</div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">Cable TV</h3>
-                            <p class="text-gray-600">Over 200+ HD channels and on-demand content.</p>
-                            <span class="text-purple-600 mt-4 inline-block font-semibold">View Details &rarr;</span>
-                        </div>
-                    </div>
-                    <!-- Card 3 -->
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer" onclick="showDetail('support')">
-                        <div class="h-40 bg-green-500 flex items-center justify-center text-white text-5xl">🎧</div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">24/7 Support</h3>
-                            <p class="text-gray-600">Expert technicians ready to help you anytime.</p>
-                            <span class="text-green-600 mt-4 inline-block font-semibold">View Details &rarr;</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 2. HALAMAN DETAIL INFORMASI (Detail Page) -->
-            <section id="detail" class="page-section">
-                <button onclick="navigateTo('home')" class="mb-6 flex items-center text-blue-600 hover:text-blue-800">
-                    &larr; Back to Home
-                </button>
-                <div class="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
-                    <div id="detail-content">
-                        <!-- Content injected via JS -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- 3. HALAMAN LOGIN (Login Page) -->
-            <section id="login" class="page-section">
-                <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-center mb-6">Login to Member Area</h2>
-                    <form onsubmit="handleLogin(event)">
-                        <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
-                            <input type="text" id="login-user" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                            <input type="password" id="login-pass" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
-                        </div>
-                        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition">
-                            Login
-                        </button>
-                    </form>
-                    <p class="text-center mt-4 text-sm text-gray-600">
-                        Don't have an account? <a href="#" onclick="navigateTo('register')" class="text-blue-600 font-bold">Register</a>
-                    </p>
-                </div>
-            </section>
-
-            <!-- 4. HALAMAN REGISTRASI (Registration Page) -->
-            <section id="register" class="page-section">
-                <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-center mb-6">Create New Account</h2>
-                    <form onsubmit="handleRegister(event)">
-                        <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
-                            <input type="text" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                            <input type="email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                            <input type="password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
-                        </div>
-                        <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition">
-                            Register Account
-                        </button>
-                    </form>
-                    <p class="text-center mt-4 text-sm text-gray-600">
-                        Already have an account? <a href="#" onclick="navigateTo('login')" class="text-blue-600 font-bold">Login</a>
-                    </p>
-                </div>
-            </section>
-
-            <!-- 5. HALAMAN MENU UTAMA / DASHBOARD (Chatbot) -->
-            <section id="dashboard" class="page-section">
-                <div class="max-w-4xl mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Member Dashboard</h2>
-                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">Status: Active</span>
-                    </div>
-
-                    <!-- Chatbot Container -->
-                    <div class="bg-white shadow-2xl rounded-lg flex flex-col h-[600px]">
-                        <!-- Bot Header -->
-                        <div class="bg-blue-600 text-white p-4 rounded-t-lg shadow-md flex justify-between items-center">
-                            <h3 class="text-lg font-bold">Live Support Assistant 🤖</h3>
-                        </div>
-
-                        <!-- Chat Area -->
-                        <div id="chat-area" class="flex-grow p-4 space-y-4 overflow-y-auto bg-gray-50">
-                            <div class="flex justify-start">
-                                <div class="max-w-xs lg:max-w-md bg-gray-200 text-gray-800 p-3 rounded-lg shadow">
-                                    <p>Hello! I'm the ISP Support Bot. How can I help you today?</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Input Area -->
-                        <div class="p-4 bg-white border-t rounded-b-lg">
-                            <div class="flex space-x-2">
-                                <input type="text" id="user-input" class="flex-grow px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type 'hello' to start..." disabled>
-                                <button id="send-btn" class="bg-blue-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-600 disabled:opacity-50" disabled>
-                                    Send
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </div>
-
-        <!-- FOOTER (Required format) -->
-        <footer class="bg-gray-800 text-white py-6 mt-auto">
-            <div class="container mx-auto text-center">
-                <!-- ⬇️ REPLACE THESE WITH YOUR ACTUAL DETAILS ⬇️ -->
-                <p class="text-lg font-medium">@Copyright by 123456_YOURNAME_CLASS-A</p>
-                <p class="text-sm text-gray-400 mt-2">ISP Web Project Assignment</p>
-            </div>
-        </footer>
-
-        <!-- JAVASCRIPT LOGIC -->
-        <script>
-            // --- 1. PAGE NAVIGATION SYSTEM ---
-            function navigateTo(pageId) {
-                // Hide all pages
-                document.querySelectorAll('.page-section').forEach(section => {
-                    section.classList.remove('active-page');
-                });
-                // Show requested page
-                document.getElementById(pageId).classList.add('active-page');
-                window.scrollTo(0,0);
-            }
-
-            // --- 2. DETAIL PAGE LOGIC ---
-            const detailData = {
-                'internet': {
-                    title: 'Fiber Optic Internet',
-                    icon: '🚀',
-                    color: 'text-blue-600',
-                    desc: 'Experience lightning-fast internet speeds with our pure fiber optic network. Symmetrical upload and download speeds ensure smooth video calls and gaming.',
-                    price: 'Starting at $30/month'
-                },
-                'tv': {
-                    title: 'Premium Cable TV',
-                    icon: '📺',
-                    color: 'text-purple-600',
-                    desc: 'Get access to over 200 HD channels including sports, movies, and international news. Includes free DVR service so you never miss a show.',
-                    price: 'Starting at $25/month'
-                },
-                'support': {
-                    title: '24/7 Technical Support',
-                    icon: '🎧',
-                    color: 'text-green-600',
-                    desc: 'Our certified technicians are available around the clock to assist you with any connection issues, hardware setup, or billing inquiries.',
-                    price: 'Included Free'
-                }
-            };
-
-            function showDetail(serviceId) {
-                const data = detailData[serviceId];
-                const html = `
-                    <div class="text-center">
-                        <div class="text-6xl mb-4">${data.icon}</div>
-                        <h2 class="text-3xl font-bold ${data.color} mb-4">${data.title}</h2>
-                        <p class="text-gray-700 text-lg mb-6 leading-relaxed">${data.desc}</p>
-                        <div class="bg-gray-100 p-4 rounded-lg inline-block">
-                            <span class="font-bold text-gray-800">Price:</span> ${data.price}
-                        </div>
-                        <div class="mt-8">
-                            <button onclick="navigateTo('login')" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700">Subscribe Now</button>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('detail-content').innerHTML = html;
-                navigateTo('detail');
-            }
-
-            // --- 3. LOGIN & REGISTER LOGIC (Validation) ---
-            let isLoggedIn = false;
-
-            function handleLogin(e) {
-                e.preventDefault();
-                const user = document.getElementById('login-user').value;
-                const pass = document.getElementById('login-pass').value;
-
-                // Simple Validation Logic (Requirement 3)
-                if (user.length > 0 && pass.length > 0) {
-                    // Successful Login
-                    isLoggedIn = true;
-                    updateNav();
-                    navigateTo('dashboard'); // Redirect to Main Menu
-                    
-                    // Start the bot if not already loaded
-                    if (!botLoaded) {
-                        loadKnowledgeBase();
-                    }
-                } else {
-                    alert("Please fill in both fields!");
-                }
-            }
-
-            function handleRegister(e) {
-                e.preventDefault();
-                alert("Registration successful! Please login.");
-                navigateTo('login');
-            }
-
-            function logout() {
-                isLoggedIn = false;
-                updateNav();
-                navigateTo('home');
-                alert("You have logged out.");
-            }
-
-            function updateNav() {
-                if (isLoggedIn) {
-                    document.getElementById('nav-login').classList.add('hidden');
-                    document.getElementById('nav-register').classList.add('hidden');
-                    document.getElementById('nav-logout').classList.remove('hidden');
-                } else {
-                    document.getElementById('nav-login').classList.remove('hidden');
-                    document.getElementById('nav-register').classList.remove('hidden');
-                    document.getElementById('nav-logout').classList.add('hidden');
-                }
-            }
-
-            // --- 4. CHATBOT LOGIC (From previous version) ---
-            
-            // ⬇️ PASTE YOUR API KEY & SHEET ID HERE
-            const apiKey = "YOUR_GOOGLE_API_KEY_HERE"; 
-            const sheetId = "YOUR_GOOGLE_SHEET_ID_HERE"; 
-            const sheetRange = "Sheet1!A:E";
-
-            // Elements
-            const chatArea = document.getElementById('chat-area');
-            const userInput = document.getElementById('user-input');
-            const sendBtn = document.getElementById('send-btn');
-            
-            let knowledgeBase = new Map();
-            let botLoaded = false;
-            let currentStateID = "start";
-            const START_STATE_ID = "start";
-
-            // Chat Listeners
-            sendBtn.addEventListener('click', handleUserInput);
-            userInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleUserInput();
-            });
-
-            async function loadKnowledgeBase() {
-                if (apiKey.includes("YOUR_GOOGLE")) {
-                    addBotMessage("<b>Note:</b> Please set your API Key and Sheet ID in the code to enable the bot.");
-                    return;
-                }
-
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetRange}?key=${apiKey}`;
-
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error("API Error");
-                    
-                    const data = await response.json();
-                    const rows = data.values.slice(1); // Skip header
-
-                    knowledgeBase.clear();
-                    rows.forEach(row => {
-                        const [id, resp, opts, nexts, end] = row;
-                        if (id && resp) {
-                            knowledgeBase.set(id.trim(), {
-                                response: resp.trim(),
-                                options: opts ? opts.toLowerCase().split(',').map(s=>s.trim()) : [],
-                                nextStates: nexts ? nexts.split(',').map(s=>s.trim()) : [],
-                                isEnd: (end || "FALSE").toUpperCase() === "TRUE"
-                            });
-                        }
-                    });
-
-                    if (!knowledgeBase.has(START_STATE_ID)) throw new Error("Missing 'start' state");
-
-                    botLoaded = true;
-                    userInput.disabled = false;
-                    sendBtn.disabled = false;
-                    
-                    const startData = knowledgeBase.get(START_STATE_ID);
-                    addBotMessage(formatText(startData.response));
-
-                } catch (error) {
-                    console.error(error);
-                    addBotMessage("Failed to connect to database. Please try again later.");
-                }
-            }
-
-            function handleUserInput() {
-                const text = userInput.value.trim();
-                if (!text) return;
-
-                addUserMessage(text);
-                userInput.value = '';
+            <div class="hidden md:flex space-x-6 items-center">
+                <button onclick="navigateTo('home')" class="hover:text-blue-200 transition">Home</button>
                 
-                setTimeout(() => {
-                    const cleanInput = text.toLowerCase();
-                    const state = knowledgeBase.get(currentStateID);
-                    let match = false;
+                <!-- Login/Register Group -->
+                <button onclick="navigateTo('login')" id="nav-login" class="hover:text-blue-200 transition">Login</button>
+                <button onclick="navigateTo('register')" id="nav-register" class="hover:text-blue-200 transition">Register</button>
+                
+                <!-- NEW BUTTON: About Company -->
+                <button onclick="navigateTo('about')" class="hover:text-blue-200 transition border-l border-blue-500 pl-6">About Company</button>
+                
+                <!-- Logout Button -->
+                <button onclick="logout()" id="nav-logout" class="hidden bg-red-500 px-3 py-1 rounded hover:bg-red-600 transition">Logout</button>
+            </div>
+        </div>
+    </nav>
 
-                    if (state && state.options) {
-                        for (let i = 0; i < state.options.length; i++) {
-                            if (cleanInput.includes(state.options[i])) {
-                                const nextId = state.nextStates[i];
-                                if (knowledgeBase.has(nextId)) {
-                                    currentStateID = nextId;
-                                    const nextState = knowledgeBase.get(currentStateID);
-                                    addBotMessage(formatText(nextState.response));
-                                    if (nextState.isEnd) currentStateID = START_STATE_ID;
-                                    match = true;
-                                    break;
-                                }
+    <!-- MAIN CONTENT CONTAINER -->
+    <div class="flex-grow container mx-auto px-4 py-8">
+
+        <!-- 1. HALAMAN UTAMA (Home Page) -->
+        <section id="home" class="page-section active-page">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">Welcome to ISP Connect</h1>
+                <p class="text-xl text-gray-600">Connecting you to the world with ultra-fast speed.</p>
+            </div>
+
+            <!-- Company Info Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer" onclick="showDetail('internet')">
+                    <div class="h-40 bg-blue-500 flex items-center justify-center text-white text-5xl">🚀</div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Fiber Internet</h3>
+                        <p class="text-gray-600">Up to 1Gbps speeds for gaming and streaming.</p>
+                        <span class="text-blue-600 mt-4 inline-block font-semibold">View Details &rarr;</span>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer" onclick="showDetail('tv')">
+                    <div class="h-40 bg-purple-500 flex items-center justify-center text-white text-5xl">📺</div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Cable TV</h3>
+                        <p class="text-gray-600">Over 200+ HD channels and on-demand content.</p>
+                        <span class="text-purple-600 mt-4 inline-block font-semibold">View Details &rarr;</span>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer" onclick="showDetail('support')">
+                    <div class="h-40 bg-green-500 flex items-center justify-center text-white text-5xl">🎧</div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">24/7 Support</h3>
+                        <p class="text-gray-600">Expert technicians ready to help you anytime.</p>
+                        <span class="text-green-600 mt-4 inline-block font-semibold">View Details &rarr;</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. HALAMAN DETAIL INFORMASI (Detail Page) -->
+        <section id="detail" class="page-section">
+            <button onclick="navigateTo('home')" class="mb-6 flex items-center text-blue-600 hover:text-blue-800">
+                &larr; Back to Home
+            </button>
+            <div class="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto">
+                <div id="detail-content">
+                    <!-- Content injected via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. HALAMAN LOGIN (Login Page) -->
+        <section id="login" class="page-section">
+            <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-center mb-6">Login to Member Area</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                        <input type="text" id="login-user" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <input type="password" id="login-pass" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition">
+                        Login
+                    </button>
+                </form>
+                <p class="text-center mt-4 text-sm text-gray-600">
+                    Don't have an account? <a href="#" onclick="navigateTo('register')" class="text-blue-600 font-bold">Register</a>
+                </p>
+            </div>
+        </section>
+
+        <!-- 4. HALAMAN REGISTRASI (Registration Page) -->
+        <section id="register" class="page-section">
+            <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-center mb-6">Create New Account</h2>
+                <form onsubmit="handleRegister(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+                        <input type="text" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                        <input type="email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <input type="password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition">
+                        Register Account
+                    </button>
+                </form>
+                <p class="text-center mt-4 text-sm text-gray-600">
+                    Already have an account? <a href="#" onclick="navigateTo('login')" class="text-blue-600 font-bold">Login</a>
+                </p>
+            </div>
+        </section>
+
+        <!-- 5. HALAMAN ABOUT COMPANY (New Page) -->
+        <section id="about" class="page-section">
+            <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">About Company</h2>
+                <div class="prose lg:prose-xl text-gray-600 mx-auto">
+                    <!-- ISI HALAMAN SESUAI REQUEST -->
+                    <p class="text-xl">corpo bs corpo bs corpo bs</p>
+                    <p class="mt-4">corpo bs corpo bs corpo bs</p>
+                    <p class="mt-4">corpo bs corpo bs corpo bs</p>
+                </div>
+                <div class="mt-8">
+                    <button onclick="navigateTo('home')" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Back to Home</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. HALAMAN MENU UTAMA / DASHBOARD (Chatbot) -->
+        <section id="dashboard" class="page-section">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Member Dashboard</h2>
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">Status: Active</span>
+                </div>
+
+                <!-- Chatbot Container -->
+                <div class="bg-white shadow-2xl rounded-lg flex flex-col h-[600px]">
+                    <!-- Bot Header -->
+                    <div class="bg-blue-600 text-white p-4 rounded-t-lg shadow-md flex justify-between items-center">
+                        <h3 class="text-lg font-bold">Live Support Assistant 🤖</h3>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div id="chat-area" class="flex-grow p-4 space-y-4 overflow-y-auto bg-gray-50">
+                        <div class="flex justify-start">
+                            <div class="max-w-xs lg:max-w-md bg-gray-200 text-gray-800 p-3 rounded-lg shadow">
+                                <p>Hello! I'm the ISP Support Bot. How can I help you today?</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="p-4 bg-white border-t rounded-b-lg">
+                        <div class="flex space-x-2">
+                            <input type="text" id="user-input" class="flex-grow px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type 'hello' to start..." disabled>
+                            <button id="send-btn" class="bg-blue-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-600 disabled:opacity-50" disabled>
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- FOOTER (Required format) -->
+    <footer class="bg-gray-800 text-white py-6 mt-auto">
+        <div class="container mx-auto text-center">
+            <!-- ⬇️ REPLACE THESE WITH YOUR ACTUAL DETAILS ⬇️ -->
+            <p class="text-lg font-medium">@Copyright by 23552011301-M. ABDUL RAFI-CNS a</p>
+            <p class="text-sm text-gray-400 mt-2">UTS PEMROGRAMAN WEB</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- 1. PAGE NAVIGATION SYSTEM ---
+        function navigateTo(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active-page');
+            });
+            // Show requested page
+            document.getElementById(pageId).classList.add('active-page');
+            window.scrollTo(0,0);
+        }
+
+        // --- 2. DETAIL PAGE LOGIC ---
+        const detailData = {
+            'internet': {
+                title: 'Fiber Optic Internet',
+                icon: '🚀',
+                color: 'text-blue-600',
+                desc: 'Experience lightning-fast internet speeds with our pure fiber optic network. Symmetrical upload and download speeds ensure smooth video calls and gaming.',
+                price: 'Starting at $30/month'
+            },
+            'tv': {
+                title: 'Premium Cable TV',
+                icon: '📺',
+                color: 'text-purple-600',
+                desc: 'Get access to over 200 HD channels including sports, movies, and international news. Includes free DVR service so you never miss a show.',
+                price: 'Starting at $25/month'
+            },
+            'support': {
+                title: '24/7 Technical Support',
+                icon: '🎧',
+                color: 'text-green-600',
+                desc: 'Our certified technicians are available around the clock to assist you with any connection issues, hardware setup, or billing inquiries.',
+                price: 'Included Free'
+            }
+        };
+
+        function showDetail(serviceId) {
+            const data = detailData[serviceId];
+            const html = `
+                <div class="text-center">
+                    <div class="text-6xl mb-4">${data.icon}</div>
+                    <h2 class="text-3xl font-bold ${data.color} mb-4">${data.title}</h2>
+                    <p class="text-gray-700 text-lg mb-6 leading-relaxed">${data.desc}</p>
+                    <div class="bg-gray-100 p-4 rounded-lg inline-block">
+                        <span class="font-bold text-gray-800">Price:</span> ${data.price}
+                    </div>
+                    <div class="mt-8">
+                        <button onclick="navigateTo('login')" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700">Subscribe Now</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detail-content').innerHTML = html;
+            navigateTo('detail');
+        }
+
+        // --- 3. LOGIN & REGISTER LOGIC (Validation) ---
+        let isLoggedIn = false;
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+
+            // Simple Validation Logic (Requirement 3)
+            if (user.length > 0 && pass.length > 0) {
+                // Successful Login
+                isLoggedIn = true;
+                updateNav();
+                navigateTo('dashboard'); // Redirect to Main Menu
+                
+                // Start the bot if not already loaded
+                if (!botLoaded) {
+                    loadKnowledgeBase();
+                }
+            } else {
+                alert("Please fill in both fields!");
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            alert("Registration successful! Please login.");
+            navigateTo('login');
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            updateNav();
+            navigateTo('home');
+            alert("You have logged out.");
+        }
+
+        function updateNav() {
+            if (isLoggedIn) {
+                document.getElementById('nav-login').classList.add('hidden');
+                document.getElementById('nav-register').classList.add('hidden');
+                document.getElementById('nav-logout').classList.remove('hidden');
+            } else {
+                document.getElementById('nav-login').classList.remove('hidden');
+                document.getElementById('nav-register').classList.remove('hidden');
+                document.getElementById('nav-logout').classList.add('hidden');
+            }
+        }
+
+        // --- 4. CHATBOT LOGIC ---
+        
+        // ⬇️ PASTE YOUR API KEY & SHEET ID HERE
+        const apiKey = "AIzaSyBoToGTz7UGsGtyas6w6Ix_SsaSGQTp1Io"; 
+        const sheetId = "1Mspmx96rJAXAqInNjgdpsiXZ7c-Ey69gmQMmnv1FYCY"; 
+        const sheetRange = "Sheet1!A:E";
+
+        // Elements
+        const chatArea = document.getElementById('chat-area');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        let knowledgeBase = new Map();
+        let botLoaded = false;
+        let currentStateID = "start";
+        const START_STATE_ID = "start";
+
+        // Chat Listeners
+        sendBtn.addEventListener('click', handleUserInput);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleUserInput();
+        });
+
+        async function loadKnowledgeBase() {
+            if (apiKey.includes("YOUR_GOOGLE")) {
+                addBotMessage("<b>Note:</b> Please set your API Key and Sheet ID in the code to enable the bot.");
+                return;
+            }
+
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetRange}?key=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("API Error");
+                
+                const data = await response.json();
+                const rows = data.values.slice(1); // Skip header
+
+                knowledgeBase.clear();
+                rows.forEach(row => {
+                    const [id, resp, opts, nexts, end] = row;
+                    if (id && resp) {
+                        knowledgeBase.set(id.trim(), {
+                            response: resp.trim(),
+                            options: opts ? opts.toLowerCase().split(',').map(s=>s.trim()) : [],
+                            nextStates: nexts ? nexts.split(',').map(s=>s.trim()) : [],
+                            isEnd: (end || "FALSE").toUpperCase() === "TRUE"
+                        });
+                    }
+                });
+
+                if (!knowledgeBase.has(START_STATE_ID)) throw new Error("Missing 'start' state");
+
+                botLoaded = true;
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                
+                const startData = knowledgeBase.get(START_STATE_ID);
+                addBotMessage(formatText(startData.response));
+
+            } catch (error) {
+                console.error(error);
+                addBotMessage("Failed to connect to database. Please try again later.");
+            }
+        }
+
+        function handleUserInput() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            addUserMessage(text);
+            userInput.value = '';
+            
+            setTimeout(() => {
+                const cleanInput = text.toLowerCase();
+                const state = knowledgeBase.get(currentStateID);
+                let match = false;
+
+                if (state && state.options) {
+                    for (let i = 0; i < state.options.length; i++) {
+                        if (cleanInput.includes(state.options[i])) {
+                            const nextId = state.nextStates[i];
+                            if (knowledgeBase.has(nextId)) {
+                                currentStateID = nextId;
+                                const nextState = knowledgeBase.get(currentStateID);
+                                addBotMessage(formatText(nextState.response));
+                                if (nextState.isEnd) currentStateID = START_STATE_ID;
+                                match = true;
+                                break;
                             }
                         }
                     }
+                }
 
-                    if (!match) {
-                    addBotMessage(formatText("I'm sorry, I didn't understand. " + (state ? state.response : "")));
-                    }
-                }, 500);
-            }
+                if (!match) {
+                   addBotMessage(formatText("I'm sorry, I didn't understand. " + (state ? state.response : "")));
+                }
+            }, 500);
+        }
 
-            function formatText(text) {
-                return text.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold">$1</span>');
-            }
+        function formatText(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold">$1</span>');
+        }
 
-            function addBotMessage(html) {
-                const div = document.createElement('div');
-                div.className = 'flex justify-start';
-                div.innerHTML = `<div class="max-w-xs bg-gray-200 text-gray-800 p-3 rounded-lg shadow"><p>${html}</p></div>`;
-                chatArea.appendChild(div);
-                chatArea.scrollTop = chatArea.scrollHeight;
-            }
+        function addBotMessage(html) {
+            const div = document.createElement('div');
+            div.className = 'flex justify-start';
+            div.innerHTML = `<div class="max-w-xs bg-gray-200 text-gray-800 p-3 rounded-lg shadow"><p>${html}</p></div>`;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
 
-            function addUserMessage(text) {
-                const div = document.createElement('div');
-                div.className = 'flex justify-end';
-                div.innerHTML = `<div class="max-w-xs bg-blue-600 text-white p-3 rounded-lg shadow"><p>${text}</p></div>`;
-                chatArea.appendChild(div);
-                chatArea.scrollTop = chatArea.scrollHeight;
-            }
-        </script>
-    </body>
-    </html>
+        function addUserMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'flex justify-end';
+            div.innerHTML = `<div class="max-w-xs bg-blue-600 text-white p-3 rounded-lg shadow"><p>${text}</p></div>`;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+    </script>
+</body>
+</html>
