@@ -1,1 +1,5 @@
-<img width="1220" height="602" alt="image" src="https://github.com/user-attachments/assets/ffa83064-4423-471c-a22f-04fa5aaeb8cc" />
+NAMA: M. ABDUL RAFI MUHBAB
+NIM: 23552011301
+CNS A
+
+<img width="994" height="927" alt="Screenshot 2025-11-24 215533" src="https://github.com/user-attachments/assets/b40ee266-b863-4672-bda2-d584f9cbd3c6" />
